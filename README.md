@@ -14,9 +14,7 @@ _Current_
   - Users
   - Reviews
   - Checkins
+* YelpDataContainer class that stores Yelp data and methods to operate on it
 
 _In Process_
-* yelpDataContainer Python class, for storing/manipulating Yelp data
-
-_Planned_
-* adding to this list
+* YelpDataContainer additional functionality
