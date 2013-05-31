@@ -33,6 +33,42 @@ def importJSONbusiness(dataFile):
 
 	return busData
 
+def selectBusinessByCatagory(dataFile, category):
+  """
+    parameters:
+  dataFile - file containing business objects
+  category - Yelp business category
+  
+    side effects:
+  writes a new data file called 'datafile+category' containing only the
+  businesses that are in the specified category
+  """
+
+  try:
+    bus = open(dataFile)
+  except IOError:
+    print "Unable to open data file: ", dataFile
+    return
+
+  fileParts = dataFile.split('.')
+  outFile = fileParts[0] + '-' + category + '.' + fileParts[1]
+  try:
+    busout = open(outFile, 'w')
+  except IOError:
+    print "Unable to open output file: ", outFile
+    return
+
+  for line in bus:
+    try:
+      data = json.loads(line)
+    except ValueError:
+      print "Failed to convert JSON object to dictionary"
+      return
+
+    if category in data["categories"]:
+      busout.write(line)
+
+
 def importJSONcheckin(dataFile):
 	"""
 	parameters:

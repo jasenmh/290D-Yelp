@@ -18,3 +18,5 @@ _Current_
 
 _In Process_
 * YelpDataContainer additional functionality
+* class to store busyness sentiment for a single business
+* function to select businesses based on category and create new data file for them
