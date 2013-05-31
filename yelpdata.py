@@ -68,6 +68,31 @@ def selectBusinessByCatagory(dataFile, category):
     if category in data["categories"]:
       busout.write(line)
 
+def selectReviewByBusinessIDs(dataFile, busIDs):
+
+  try:
+    revs = open(dataFile)
+  except IOError:
+    print "Unable to open data file: ", dataFile
+    return
+
+  fileParts = dataFile.split('.')
+  outFile = fileParts[0] + '-ByIDs.' + fileParts[1]
+  try:
+    revsout = open(outFile, 'w')
+  except IOError:
+    print "Unable to open output file: ", outFile
+    return
+
+  for line in revs:
+    try:
+      data = json.loads(line)
+    except ValueError:
+      print "Failed to convert JSON object to dictionary"
+      return
+
+    if data["business_id"] in busIDs:
+      revsout.write(line)
 
 def importJSONcheckin(dataFile):
 	"""

@@ -81,3 +81,41 @@ class YelpDataContainer:
         return bus
 
     return 0
+
+class BusinessSentiment:
+  """
+  Stores sentiment values for a business (identifiable by its businessID
+  property) for each day of the week (0-6) and 2 meal times (0=lunch, 
+  1=dinner).
+  """
+
+  def __init__(self, bID = 0, sents = [.5 for x in range(14)]):
+    self.sentiment = sents
+    self.businessID = bID
+
+  def getSentiment(self, day, meal):
+    """
+    Gets sentiment rating for specified day of the week (0-6) and time
+    (0=lunch, 1=dinner) of day.
+    """
+    if(day > 6):
+      return -1
+
+    if(meal != 0):
+      day += 7   # array elements 0-6 are mon-sun lunch, 7-13 mon-sun dinner
+
+    return self.sentiment[day]
+
+  def setSentiment(self, day, meal, sent):
+    if(meal != 0):
+      day += 7
+    if(day > 13):
+      return
+
+    self.sentiment[day] = sent
+
+  def getBusinessID(self):
+    return self.businessID
+
+  def setBusinessID(self, bID):
+    self.businessID = bID
