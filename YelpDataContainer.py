@@ -17,6 +17,7 @@ class YelpDataContainer:
     self.checkin = []
     self.review = []
     self.user = []
+    self.seniment = []
 
   def loadBusiness(self, fileName):
     """
@@ -83,20 +84,36 @@ class YelpDataContainer:
 
     return 0
 
+  def findSentimentByBusinessID(self, busID):
+    """
+    Finds the sentiment class for a specific business and returns it. If
+    the sentiment does not exist, one is created.
+    """
+    for sents in self.sentiment:
+      if(sents.businessID == busID):
+        return sents
+
+    s = BusinessSentiment(busID)
+    self.sentiment.append(s)
+    return s
+
 class BusinessSentiment:
   """
   Stores sentiment values for a business (identifiable by its businessID
   property) for each day of the week (0-6) and 2 meal times (0=lunch, 
   1=dinner).
   """
+  dinnerDict = []
+  lunchDict = []
+  positiveDict = []
+  negativeDict = []
 
   def __init__(self, bID = 0, sents = [.5 for x in range(14)]):
     self.sentiment = sents
     self.businessID = bID
-    self.dinnerDict = []
-    self.lunchDict = []
-    self.positiveDict = []
-    self.negativeDict = []
+    self.reviewCountByDay = [0 for x in range(7)]
+    if len(positiveDict):
+      BusinessSentiment.loadDictionaries()
 
   def getSentiment(self, day, meal):
     """
@@ -122,6 +139,9 @@ class BusinessSentiment:
       return
 
     self.sentiment[day] = sent
+
+  def getReviewCountByDay(self, dayOfWeek):
+    return self.reviewCountByDay[dayOfWeek]
 
   def getBusinessID(self):
     return self.businessID
@@ -154,6 +174,8 @@ class BusinessSentiment:
     rDt = datetime.datetime(int(dateList[0]), int(dateList[1]), int(dateList[2]))
     dayOfWeek = rDt.weekday()
 
+    self.reviewCountByDay[dayOfWeek] += 1
+
     # isolate sentences in review text
     revText = revData["text"]
     revSent2 = revText.split('.') # first split review into sentences by periods
@@ -167,16 +189,16 @@ class BusinessSentiment:
     # evaluate each sentence for meal time and sentiment
     for sentence in revSent:
       words = sentence.split(' ')
-      for element in self.lunchDict:
+      for element in lunchDict:
         if element in words:
           timeSlot -= 1
-      for element in self.dinnerDict:
+      for element in dinnerDict:
         if element in words:
           timeSlot += 1
-      for element in self.negativeDict:
+      for element in negativeDict:
         if element in words:
           sentiment -= 1
-      for element in self.positiveDict:
+      for element in positiveDict:
         if element in words:
           sentiment += 1
 
@@ -202,24 +224,25 @@ class BusinessSentiment:
     elif currentSentiment < 0:
       currentSentiment = 0
     this.setSentiment(dayOfWeek, timeSlot, currentSentiment)
-  
-  def loadDictionaries(self):
+
+  @staticmethod
+  def loadDictionaries():
     """
     Populates sentiment dictionaries
     """
 
     dataFile = open('dinner.txt')
     for line in dataFile:
-      self.dinnerDict.append(line)
+      dinnerDict.append(line)
 
     dataFile = open('lunch.txt')
     for line in dataFile:
-      self.lunchDict.append(line)
+      lunchDict.append(line)
 
     dataFile = open('negative.txt')
     for line in dataFile:
-      self.negativeDict.append(line)
+      negativeDict.append(line)
 
     dataFile = open('positive.txt')
     for line in dataFile:
-      self.positiveDict.append(line)
+      positiveDict.append(line)
