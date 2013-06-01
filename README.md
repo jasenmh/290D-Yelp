@@ -14,9 +14,10 @@ _Current_
   - Users
   - Reviews
   - Checkins
+  * extract JSON objects for businesses by category
+  * extract JSON objects for reviews by business ID
 * YelpDataContainer class that stores Yelp data and methods to operate on it
+* BusinessSentiment class in YelpDataContainer module to store/adjust sentiment
 
 _In Process_
 * YelpDataContainer additional functionality
-* class to store busyness sentiment for a single business
-* function to select businesses based on category and create new data file for them
