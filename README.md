@@ -16,7 +16,6 @@ _Current_
   - Checkins
 * extract JSON objects for businesses by category
 * extract JSON objects for reviews by business ID
-
 * YelpDataContainer class that stores Yelp data and methods to operate on it
 * BusinessSentiment class in YelpDataContainer module to store/adjust sentiment
 
