@@ -1,5 +1,6 @@
 import yelpdata
 import datetime
+import json
 
 """
 This module contains the YelpDataContainer class.
@@ -17,7 +18,7 @@ class YelpDataContainer:
     self.checkin = []
     self.review = []
     self.user = []
-    self.seniment = []
+    self.sentiment = []
 
   def loadBusiness(self, fileName):
     """
@@ -108,14 +109,34 @@ class BusinessSentiment:
   positiveDict = []
   negativeDict = []
 
-  def __init__(self, bID = 0, sents = [.5 for x in range(14)]):
-    self.sentiment = sents
+  def __init__(self, bID = 0):
     self.businessID = bID
+    self.latitude = 0.0
+    self.longitude = 0.0
+    self.posReviewByDay = [0 for x in range(7)]
+    self.negReviewByDay = [0 for x in range(7)]
     self.reviewCountByDay = [0 for x in range(7)]
-    if len(positiveDict):
+    if len(BusinessSentiment.positiveDict):
       BusinessSentiment.loadDictionaries()
 
-  def getSentiment(self, day, meal):
+  def sentimentToString(self):
+    returnString = "{0}, {1}, {2}, ".format(self.businessID, self.latitude, self.longitude)
+    for x in range(7):
+      returnString += self.getSentiment(x)
+      returnString += ", "
+      returnString += self.reviewCountByDay[x]
+      if x != 6:
+        returnString += ", "
+    return returnString
+
+
+  def setLatitude(self, lat):
+    self.latitude = lat
+
+  def setLongitude(self, lng):
+    self.longitude = lng
+
+  def getSentiment(self, day):
     """
     Gets sentiment rating for specified day of the week (0-6) and time
     (0=lunch, 1=dinner) of day.
@@ -123,25 +144,7 @@ class BusinessSentiment:
     if(day > 6):
       return -1
 
-    if(meal != 0):
-      day += 7   # array elements 0-6 are mon-sun lunch, 7-13 mon-sun dinner
-
-    return self.sentiment[day]
-
-  def setSentiment(self, day, meal, sent):
-    """
-    Sets sentiment for a day of the week (0=Monday-6=Sunday) and time
-    (0=lunch, 1=dinner) to a value 0-1 (0=busiest sentiment).
-    """
-    if(meal != 0):
-      day += 7
-    if(day > 13):
-      return
-
-    self.sentiment[day] = sent
-
-  def getReviewCountByDay(self, dayOfWeek):
-    return self.reviewCountByDay[dayOfWeek]
+    return self.negReviewByDay[day] / self.reviewCountByDay[day]
 
   def getBusinessID(self):
     return self.businessID
@@ -149,7 +152,7 @@ class BusinessSentiment:
   def setBusinessID(self, bID):
     self.businessID = bID
 
-  def analyzeReviewSentiment(self, reviewJSON):
+  def analyzeReviewSentiment(self, reviewList):
     """
     This function takes the text of a review and 1) determine the day of the
     week it applies to, 2) determines the meal it applies to (or both as a
@@ -157,17 +160,12 @@ class BusinessSentiment:
     existing sentiment for that day/time.
     """
 
-    timeSlot = 0
     sentiment = 0
 
-    if len(self.dinnerDict) == 0:
-      self.loadDictionaries()
+    if len(BusinessSentiment.dinnerDict) == 0:
+      BusinessSentiment.loadDictionaries()
 
-    try:
-      revData = json.loads(reviewJSON)
-    except ValueError:
-      print "Unable to parse review data."
-      return
+    revData = reviewList
 
     # day of week
     dateList = revData["date"].split('-')
@@ -186,44 +184,21 @@ class BusinessSentiment:
     for sent in revSent1:
       revSent += sent.split('!') # then bangs, leaving all sentences split?
 
-    # evaluate each sentence for meal time and sentiment
+    # evaluate each sentence for sentiment
     for sentence in revSent:
       words = sentence.split(' ')
-      for element in lunchDict:
-        if element in words:
-          timeSlot -= 1
-      for element in dinnerDict:
-        if element in words:
-          timeSlot += 1
-      for element in negativeDict:
+      for element in BusinessSentiment.negativeDict:
         if element in words:
           sentiment -= 1
-      for element in positiveDict:
+      for element in BusinessSentiment.positiveDict:
         if element in words:
           sentiment += 1
 
-    # determine meal time
-    if timeSlot > 0:
-      timeSlot = 1
-    else:
-      timeSlot = 0
-
-    # determine sentiment
-    if sentiment > 0:
-      sentiment = .1
-    elif sentiment < 0:
-      sentiment = -.1
-    else:
-      sentiment = 0
-
     # set new sentiment for day of week
-    currentSentiment = this.getSentiment(dayOfWeek, timeSlot)
-    currentSentiment += sentiment
-    if currentSentiment > 1:
-      currentSentiment = 1
-    elif currentSentiment < 0:
-      currentSentiment = 0
-    this.setSentiment(dayOfWeek, timeSlot, currentSentiment)
+    if sentiment > 0:
+      self.posReviewByDay[dayOfWeek] += 1
+    else:
+      self.negReviewByDay[dayOfWeek] += 1
 
   @staticmethod
   def loadDictionaries():
@@ -233,16 +208,17 @@ class BusinessSentiment:
 
     dataFile = open('dinner.txt')
     for line in dataFile:
-      dinnerDict.append(line)
+      BusinessSentiment.dinnerDict.append(line)
 
     dataFile = open('lunch.txt')
     for line in dataFile:
-      lunchDict.append(line)
+      BusinessSentiment.lunchDict.append(line)
 
     dataFile = open('negative.txt')
     for line in dataFile:
-      negativeDict.append(line)
+      BusinessSentiment.negativeDict.append(line)
 
     dataFile = open('positive.txt')
     for line in dataFile:
-      positiveDict.append(line)
+      BusinessSentiment.positiveDict.append(line)
+
