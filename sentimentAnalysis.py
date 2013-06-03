@@ -4,8 +4,12 @@ y = YelpDataContainer()
 
 y.loadBusiness('data/yelp_academic_dataset_business-Restaurants.json')
 y.loadReview('data/yelp_academic_dataset_review-Restaurants.json')
+revCount = 0
 
 for rev in y.review:
+  revCount += 1
+  if revCount % 250 == 0:
+    print "--Review ", revCount
   s = y.findSentimentByBusinessID(rev["business_id"])
   b = y.getBusinessByID(rev["business_id"])
   s.setLatitude(b["latitude"])

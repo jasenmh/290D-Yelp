@@ -1,4 +1,5 @@
 import yelpdata
+from TreeNode import TreeNode
 import datetime
 import json
 
@@ -15,17 +16,22 @@ class YelpDataContainer:
 
   def __init__(self):
     self.business = []
+    self.busRoot = 0
     self.checkin = []
     self.review = []
     self.user = []
     self.sentiment = []
+    self.sentRoot = 0
 
   def loadBusiness(self, fileName):
     """
     Takes the name of the file containing Business data and stores the
     data in the self.business[] list.
     """
-    self.business = yelpdata.importJSONbusiness(fileName)
+    t = yelpdata.importJSONbusiness(fileName)
+    self.business = t[0]
+    self.busRoot = t[1]
+    # print self.busRoot, "should be", t[1]
 
   def loadCheckin(self, fileName):
     """
@@ -52,6 +58,8 @@ class YelpDataContainer:
     """
     Builds a dictionary of reviews about the indexed businesses.
     """
+    return -1   # does not work with business binary tree, need to redo
+
     businessReviews = {}
     reviewFound = 0
 
@@ -74,29 +82,49 @@ class YelpDataContainer:
 
     return businessReviews
 
-  def getBusinessByID(self, busId):
+  def getBusinessByID(self, busID):
     """
     This method takes a Yelp business ID and returns the data tuple for
     that business.
     """
-    for bus in self.business:
-      if busId == bus['business_id']:
-        return bus
+    return self.busRoot.findValueByKey(busID)
 
-    return 0
+    #for bus in self.business:
+    #  if busID == bus['business_id']:
+    #    return bus
+
+    #return 0
 
   def findSentimentByBusinessID(self, busID):
     """
     Finds the sentiment class for a specific business and returns it. If
     the sentiment does not exist, one is created.
     """
-    for sents in self.sentiment:
-      if(sents.businessID == busID):
-        return sents
+    if self.sentRoot == 0:  # no sentiments yet
+      bs = BusinessSentiment(busID)
+      self.sentiment.append(bs)
+      s = TreeNode()
+      s.key = busID
+      s.value = bs
+      self.sentRoot = s
+    else:   # there are some sentiments, lets try to find ours  
+      s = self.sentRoot.findValueByKey(busID)
+      if s == 0:    # didn't find one, make it up
+        bs = BusinessSentiment(busID)
+        self.sentiment.append(bs)
+        s = TreeNode()
+        s.key = busID
+        s.value = bs
 
-    s = BusinessSentiment(busID)
-    self.sentiment.append(s)
-    return s
+    return s.value
+
+    #for sents in self.sentiment:
+    #  if(sents.businessID == busID):
+    #    return sents
+
+    #s = BusinessSentiment(busID)
+    #self.sentiment.append(s)
+    #return s
 
 class BusinessSentiment:
   """
@@ -122,9 +150,9 @@ class BusinessSentiment:
   def sentimentToString(self):
     returnString = "{0}, {1}, {2}, ".format(self.businessID, self.latitude, self.longitude)
     for x in range(7):
-      returnString += self.getSentiment(x)
+      returnString += str(self.getSentiment(x))
       returnString += ", "
-      returnString += self.reviewCountByDay[x]
+      returnString += str(self.reviewCountByDay[x])
       if x != 6:
         returnString += ", "
     return returnString
@@ -144,7 +172,10 @@ class BusinessSentiment:
     if(day > 6):
       return -1
 
-    return self.negReviewByDay[day] / self.reviewCountByDay[day]
+    if self.reviewCountByDay[day] == 0:
+      return 0.5    # no reviews, no sentiment
+    else:
+      return self.negReviewByDay[day] / self.reviewCountByDay[day]
 
   def getBusinessID(self):
     return self.businessID
@@ -221,4 +252,3 @@ class BusinessSentiment:
     dataFile = open('positive.txt')
     for line in dataFile:
       BusinessSentiment.positiveDict.append(line)
-

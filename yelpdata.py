@@ -1,3 +1,4 @@
+from TreeNode import TreeNode
 import json
 
 """
@@ -7,31 +8,40 @@ Academic Dataset.
 """
 
 def importJSONbusiness(dataFile):
-	"""
+  """
         parameters:
-	dataFile - name of file containing business JSON objects
+  dataFile - name of file containing business JSON objects
 
-	returns:
-	busData - list containing dictionaries representing Yelp businesses
-	"""
+  returns:
+  busData - list containing dictionaries representing Yelp businesses
+  """
 
-	busData = []
-	try:
-		bus = open(dataFile)
-	except IOError:
-		print "Unable to open data file: ", dataFile
-		return -1
+  busData = []
+  rootNode = 0
 
-	for line in bus:
-		try:
-			data = json.loads(line)
-		except ValueError:
-			print "Failed to convert JSON object to dictionary"
-			return -1
+  try:
+    bus = open(dataFile)
+  except IOError:
+    print "Unable to open data file: ", dataFile
+    return -1
 
-		busData.append(data)
+  for line in bus:
+    try:
+      data = json.loads(line)
+    except ValueError:
+      print "Failed to convert JSON object to dictionary"
+      return -1
 
-	return busData
+    n = TreeNode()
+    n.key = data["business_id"]
+    n.value = data
+    busData.append(n)
+    if rootNode == 0:
+      rootNode = n
+    else:
+      rootNode.insert(n)
+
+  return (busData, rootNode)
 
 def selectBusinessByCatagory(dataFile, category):
   """
@@ -69,58 +79,58 @@ def selectBusinessByCatagory(dataFile, category):
       busout.write(line)
 
 def importJSONcheckin(dataFile):
-	"""
-	parameters:
-	dataFile - name of file containing checkin JSON objects
+  """
+  parameters:
+  dataFile - name of file containing checkin JSON objects
 
-	returns:
-	checkinData - list containing dicts representing Yelp checkins
-	"""
+  returns:
+  checkinData - list containing dicts representing Yelp checkins
+  """
 
-	checkinData = []
-	try:
-		checkin = open(dataFile)
-	except IOError:
-		print "Unable to open data file: ", dataFile
-		return -1
+  checkinData = []
+  try:
+    checkin = open(dataFile)
+  except IOError:
+    print "Unable to open data file: ", dataFile
+    return -1
 
-	for line in checkin:
-		try:
-			data = json.loads(line)
-		except ValueError:
-			print "Failed to convert JSON object to dictionary"
-			return -1
+  for line in checkin:
+    try:
+      data = json.loads(line)
+    except ValueError:
+      print "Failed to convert JSON object to dictionary"
+      return -1
 
-		checkinData.append(data)
+    checkinData.append(data)
 
-	return checkinData
+  return checkinData
 
 def importJSONreview(dataFile):
-	"""
-	parameters:
-	dataFile - name of file containing review JSON objects
+  """
+  parameters:
+  dataFile - name of file containing review JSON objects
 
-	returns:
-	reviewData - list containing dicts representing Yelp reviews
-	"""
+  returns:
+  reviewData - list containing dicts representing Yelp reviews
+  """
 
-	reviewData = []
-	try:
-		review = open(dataFile)
-	except IOError:
-		print "Unable to open data file: ", dataFile
-		return -1
+  reviewData = []
+  try:
+    review = open(dataFile)
+  except IOError:
+    print "Unable to open data file: ", dataFile
+    return -1
 
-	for line in review:
-		try:
-			data = json.loads(line)
-		except ValueError:
-			print "Failed to convert JSON object to dictionary"
-			return -1
+  for line in review:
+    try:
+      data = json.loads(line)
+    except ValueError:
+      print "Failed to convert JSON object to dictionary"
+      return -1
 
-		reviewData.append(data)
+    reviewData.append(data)
 
-	return reviewData
+  return reviewData
 
 def selectReviewByBusinessIDs(dataFile, busIDs):
 
@@ -149,29 +159,29 @@ def selectReviewByBusinessIDs(dataFile, busIDs):
       revsout.write(line)
 
 def importJSONuser(dataFile):
-	"""
-	parameters:
-	dataFile - name of file containing user JSON objects
+  """
+  parameters:
+  dataFile - name of file containing user JSON objects
 
-	returns:
-	userData - list containing dicts representing Yelp users
-	"""
+  returns:
+  userData - list containing dicts representing Yelp users
+  """
 
-	userData = []
-	try:
-		user = open(dataFile)
-	except IOError:
-		print "Unable to open data file: ", dataFile
-		return -1
+  userData = []
+  try:
+    user = open(dataFile)
+  except IOError:
+    print "Unable to open data file: ", dataFile
+    return -1
 
-	for line in user:
-		try:
-			data = json.loads(line)
-		except ValueError:
-			print "Failed to convert JSON object to dictionary"
-			return -1
+  for line in user:
+    try:
+      data = json.loads(line)
+    except ValueError:
+      print "Failed to convert JSON object to dictionary"
+      return -1
 
-		userData.append(data)
+    userData.append(data)
 
-	return userData
+  return userData
 
