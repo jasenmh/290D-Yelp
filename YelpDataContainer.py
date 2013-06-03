@@ -116,11 +116,13 @@ class YelpDataContainer:
         s.key = busID
         s.value = bs
 
-    if s == 0 or s.value == 0:
-      print "Unable to find/create sentiment for", busID
-      return 0
+    try:
+      v = s.value
+    except AttributeError:
+      print "Found broken sentiment for ID", busID
+      v = 0
 
-    return s.value
+    return v
 
     #for sents in self.sentiment:
     #  if(sents.businessID == busID):
