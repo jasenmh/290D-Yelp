@@ -21,20 +21,22 @@ def main():
 
   print "Loading data..."
   y.loadBusiness('data/yelp_academic_dataset_business-Restaurants.json')
-  y.loadReview('data/yelp_academic_dataset_review-Restaurants-500.json')
+  y.loadReview('data/yelp_academic_dataset_review-Restaurants-10000.json')
 
   timeStart = time.time()
   timeLast = time.time()
   print "Starting analysis..."
   for rev in y.review:
     revCount += 1
-    if revCount % 100 == 0:
+    if revCount % 1000 == 0:
       writeOutput(y, revCount)
     if revCount % 100 == 0:
       timeNew = time.time()
       print "--Review",revCount," Time",timeNew-timeLast,"/",timeNew-timeStart
       timeLast = timeNew
     s = y.findSentimentByBusinessID(rev["business_id"])
+    if s == 0:
+      continue
     b = y.getBusinessByID(rev["business_id"])
     s.setLatitude(b["latitude"])
     s.setLongitude(b["longitude"])
