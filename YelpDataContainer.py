@@ -100,6 +100,7 @@ class YelpDataContainer:
     Finds the sentiment class for a specific business and returns it. If
     the sentiment does not exist, one is created.
     """
+    v = 0
     if self.sentRoot == 0:  # no sentiments yet
       bs = BusinessSentiment(busID)
       self.sentiment.append(bs)
@@ -107,6 +108,7 @@ class YelpDataContainer:
       s.key = busID
       s.value = bs
       self.sentRoot = s
+      v = s.value
     else:   # there are some sentiments, lets try to find ours  
       s = self.sentRoot.findValueByKey(busID)
       if s == 0:    # didn't find one, make it up
@@ -115,12 +117,15 @@ class YelpDataContainer:
         s = TreeNode()
         s.key = busID
         s.value = bs
+        v = s.value
+      else:
+        v = s
 
-    try:
-      v = s.value
-    except AttributeError:
-      print "Found broken sentiment for ID", busID
-      v = 0
+    #try:
+    #  v = s.value
+    #except AttributeError:
+    #  print "Found broken sentiment for ID", busID
+    #  v = 0
 
     return v
 

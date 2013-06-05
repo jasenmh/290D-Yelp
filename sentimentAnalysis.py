@@ -36,7 +36,7 @@ def main():
 
   print "Loading data..."
   y.loadBusiness('data/yelp_academic_dataset_business-Restaurants.json')
-  y.loadReview('data/yelp_academic_dataset_review-Restaurants-3to4k.json')
+  y.loadReview('data/yelp_academic_dataset_review-Restaurants.json')
 
   timeStart = time.time()
   timeLast = time.time()
