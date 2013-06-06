@@ -53,10 +53,12 @@ def main():
       timeLast = timeNew
     s = y.findSentimentByBusinessID(rev["business_id"])
     if s == 0:
+      print "No sentiment for {0}, skipping it.".format(rev["business_id"])
       continue
-    b = y.getBusinessByID(rev["business_id"])
-    s.setLatitude(b["latitude"])
-    s.setLongitude(b["longitude"])
+    if s.latitude == 0.0:
+      b = y.getBusinessByID(rev["business_id"])
+      s.setLatitude(b["latitude"])
+      s.setLongitude(b["longitude"])
     s.analyzeReviewSentiment(rev)
 
   print "Printing results..."

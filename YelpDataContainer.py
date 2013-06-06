@@ -163,8 +163,12 @@ class BusinessSentiment:
     returnString = "{0}, {1}, {2}".format(self.businessID, self.latitude, self.longitude)
     for x in self.daysReviewed:
       nr = self.negReviewByDay[x]
+      pr = self.posReviewByDay[x]
       dr = self.reviewCountByDay[x]
-      s = nr/dr
+      if nr == 0 and pr == 0:
+        s = 0.5
+      else:
+        s = nr/dr
       returnString += ", {0}, {1}, {2}".format(x, str(s), str(dr))
 
     return returnString
@@ -192,7 +196,7 @@ class BusinessSentiment:
 
     sentiment = 0
 
-    if len(BusinessSentiment.dinnerDict) == 0:
+    if len(BusinessSentiment.negativeDict) == 0:
       BusinessSentiment.loadDictionaries()
 
     revData = reviewList
@@ -228,7 +232,7 @@ class BusinessSentiment:
     # set new sentiment for day of week
     if sentiment > 0:
       self.posReviewByDay[revDate] += 1
-    else:
+    elif sentiment < 0:
       self.negReviewByDay[revDate] += 1
     self.reviewCountByDay[revDate] += 1
 
