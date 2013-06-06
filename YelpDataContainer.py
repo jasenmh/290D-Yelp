@@ -54,6 +54,36 @@ class YelpDataContainer:
     """
     self.user = yelpdata.importJSONuser(fileName)
 
+  def loadSentiment(self, fileName):
+    """
+    Loads sentiment state information from an incremental save file.
+    """
+    try:
+      sentf = open(dataFile)
+    except IOError:
+      print "Unable to open sentiment file:", fileName
+      return -1
+
+    for line in sentf:
+      sentVals = line.split(',')
+      ts = BusinessSentiment()
+      ts.businessID = sentVals[0]
+      ts.latitude = float(sentVals[1])
+      ts.longitude = float(sentVals[2])
+      for i in range(3, len(sentVals)):
+        ts.daysReviewed.append(sentVals[i])
+        ts.reviewCountByDay[sentVals[i]] = int(sentVals[i+2])
+        if sentVals[i+1] == 0.5:
+          ts.negReviewByDay[sentVals[i]] = 0
+        else:
+          ts.negReviewByDay[sentVals[i] = int(float(sentVals[i+1]) * int(sentVals[i+2]))
+        i += 2
+
+      if self.sentRoot == 0:
+        self.sentRoot = ts
+      else:
+        self.sentRoot.insert(ts)
+
   def idReviewsByBusinesses(self):
     """
     Builds a dictionary of reviews about the indexed businesses.
