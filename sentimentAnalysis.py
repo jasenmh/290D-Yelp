@@ -19,17 +19,14 @@ def writeOutput(y, outCount, quietMode):
 def main():
   quietMode = 0
   pruneCount = 0
+  saveInterval = 1000
+  reportInterval = 100
 
   for i in range(1, len(sys.argv)):
     clArg = sys.argv[i]
     if clArg == '-q':   #quiet mode
       quietMode = 1
       continue
-    try:
-      pruneCount = int(clArg)
-    except ValueError:
-      print "Unable to parse argument:", clArg
-      return
 
   y = YelpDataContainer()
   revCount = 0
@@ -49,9 +46,9 @@ def main():
   for line in rFile:
     rev = yelpdata.importSTRINGreview(line)
     revCount += 1
-    if revCount % 1000 == 0:
+    if revCount % saveInterval == 0:
       writeOutput(y, revCount, quietMode)
-    if quietMode == 0 and revCount % 100 == 0:
+    if quietMode == 0 and revCount % reportInterval == 0:
       timeNew = time.time()
       print "--Review",revCount," Time",timeNew-timeLast,"/",timeNew-timeStart
       timeLast = timeNew
