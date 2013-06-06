@@ -76,7 +76,7 @@ class YelpDataContainer:
         if sentVals[i+1] == 0.5:
           ts.negReviewByDay[sentVals[i]] = 0
         else:
-          ts.negReviewByDay[sentVals[i] = int(float(sentVals[i+1]) * int(sentVals[i+2]))
+          ts.negReviewByDay[sentVals[i]] = int(float(sentVals[i+1]) * int(sentVals[i+2]))
         i += 2
 
       if self.sentRoot == 0:
@@ -272,13 +272,13 @@ class BusinessSentiment:
     Populates sentiment dictionaries
     """
 
-    dataFile = open('dinner.txt')
-    for line in dataFile:
-      BusinessSentiment.dinnerDict.append(line)
+    #dataFile = open('dinner.txt')
+    #for line in dataFile:
+    #  BusinessSentiment.dinnerDict.append(line)
 
-    dataFile = open('lunch.txt')
-    for line in dataFile:
-      BusinessSentiment.lunchDict.append(line)
+    #dataFile = open('lunch.txt')
+    #for line in dataFile:
+    #  BusinessSentiment.lunchDict.append(line)
 
     dataFile = open('negative.txt')
     for line in dataFile:
