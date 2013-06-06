@@ -9,7 +9,7 @@ def writeOutput(y, outCount, quietMode):
   fo = open(outFile, 'w')
   count = 0
   for sent in y.sentiment:
-    if quietMode == 0 and count % 500 == 0:
+    if quietMode == 0 and count % 5000 == 0:
       print "Printing..."
     count += 1
     fo.write(sent.sentimentToString() + '\n')
