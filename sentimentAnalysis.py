@@ -4,12 +4,12 @@ from YelpDataContainer import YelpDataContainer
 import time
 import sys
 
-def writeOutput(y, outCount):
+def writeOutput(y, outCount, quietMode):
   outFile = "SentimentOut{0}.txt".format(outCount)
   fo = open(outFile, 'w')
   count = 0
   for sent in y.sentiment:
-    if count % 500 == 0:
+    if quietMode == 0 and count % 5000 == 0:
       print "Printing..."
     count += 1
     fo.write(sent.sentimentToString() + '\n')
@@ -20,14 +20,14 @@ def main():
   pruneCount = 0
 
   for i in range(1, len(sys.argv)):
-    arg = sys.argv[i]
-    if arg == '-q':   #quiet mode
+    clArg = sys.argv[i]
+    if clArg == '-q':   #quiet mode
       quietMode = 1
       continue
     try:
-      pruneCount = int(arg)
+      pruneCount = int(clArg)
     except ValueError:
-      print "Unable to parse argument:", arg
+      print "Unable to parse argument:", clArg
       return
 
   y = YelpDataContainer()
@@ -35,30 +35,34 @@ def main():
   outCount = 0
 
   print "Loading data..."
-  y.loadBusiness('data/yelp_academic_dataset_business-Restaurants.json')
-  y.loadReview('data/yelp_academic_dataset_review-Restaurants-3to4k.json')
+  y.loadBusiness('data/yelp_academic_dataset_business-Restaurants-Over100.json')
+  y.loadReview('data/yelp_academic_dataset_review-Restaurants-Over100.json')
 
-  timeStart = time.time()
-  timeLast = time.time()
+  if quietMode == 0:
+    timeStart = time.time()
+    timeLast = time.time()
+
   print "Starting analysis..."
   for rev in y.review:
     revCount += 1
     if revCount % 1000 == 0:
-      writeOutput(y, revCount)
-    if revCount % 100 == 0:
+      writeOutput(y, revCount, quietMode)
+    if quietMode == 0 and revCount % 100 == 0:
       timeNew = time.time()
       print "--Review",revCount," Time",timeNew-timeLast,"/",timeNew-timeStart
       timeLast = timeNew
     s = y.findSentimentByBusinessID(rev["business_id"])
     if s == 0:
+      print "No sentiment for {0}, skipping it.".format(rev["business_id"])
       continue
-    b = y.getBusinessByID(rev["business_id"])
-    s.setLatitude(b["latitude"])
-    s.setLongitude(b["longitude"])
-    #print "Analyzing review for ", rev["business_id"]
+    if s.latitude == 0.0:
+      b = y.getBusinessByID(rev["business_id"])
+      s.setLatitude(b["latitude"])
+      s.setLongitude(b["longitude"])
     s.analyzeReviewSentiment(rev)
 
-  writeOutput(y, "Final")
+  print "Printing results..."
+  writeOutput(y, "Final", quietMode)
 
 if __name__ == "__main__":
   main()

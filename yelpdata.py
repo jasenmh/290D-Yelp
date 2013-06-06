@@ -43,6 +43,32 @@ def importJSONbusiness(dataFile):
 
   return (busData, rootNode)
 
+def selectBusinessByID(dataFile, busIDs):
+
+  try:
+    bus = open(dataFile)
+  except IOError:
+    print "Unable to open data file: ", dataFile
+    return
+
+  fileParts = dataFile.split('.')
+  outFile = fileParts[0] + '-ByID.' + fileParts[1]
+  try:
+    busout = open(outFile, 'w')
+  except IOError:
+    print "Unable to open output file: ", outFile
+    return
+
+  for line in bus:
+    try:
+      data = json.loads(line)
+    except ValueError:
+      print "Failed to convert JSON object to dictionary"
+      return
+
+    if data["business_id"] in busIDs:
+      busout.write(line)
+
 def selectBusinessByCatagory(dataFile, category):
   """
     parameters:

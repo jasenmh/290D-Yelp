@@ -130,6 +130,7 @@ class YelpDataContainer:
     Finds the sentiment class for a specific business and returns it. If
     the sentiment does not exist, one is created.
     """
+    v = 0
     if self.sentRoot == 0:  # no sentiments yet
       bs = BusinessSentiment(busID)
       self.sentiment.append(bs)
@@ -137,6 +138,7 @@ class YelpDataContainer:
       s.key = busID
       s.value = bs
       self.sentRoot = s
+      v = s.value
     else:   # there are some sentiments, lets try to find ours  
       s = self.sentRoot.findValueByKey(busID)
       if s == 0:    # didn't find one, make it up
@@ -145,12 +147,15 @@ class YelpDataContainer:
         s = TreeNode()
         s.key = busID
         s.value = bs
+        v = s.value
+      else:
+        v = s
 
-    try:
-      v = s.value
-    except AttributeError:
-      print "Found broken sentiment for ID", busID
-      v = 0
+    #try:
+    #  v = s.value
+    #except AttributeError:
+    #  print "Found broken sentiment for ID", busID
+    #  v = 0
 
     return v
 
@@ -177,20 +182,25 @@ class BusinessSentiment:
     self.businessID = bID
     self.latitude = 0.0
     self.longitude = 0.0
-    self.posReviewByDay = [0 for x in range(7)]
-    self.negReviewByDay = [0 for x in range(7)]
-    self.reviewCountByDay = [0 for x in range(7)]
+    self.daysReviewed = []
+    self.posReviewByDay = {}
+    self.negReviewByDay = {}
+    self.reviewCountByDay = {}
     if len(BusinessSentiment.positiveDict):
       BusinessSentiment.loadDictionaries()
 
   def sentimentToString(self):
-    returnString = "{0}, {1}, {2}, ".format(self.businessID, self.latitude, self.longitude)
-    for x in range(7):
-      returnString += str(self.getSentiment(x))
-      returnString += ", "
-      returnString += str(self.reviewCountByDay[x])
-      if x != 6:
-        returnString += ", "
+    returnString = "{0}, {1}, {2}".format(self.businessID, self.latitude, self.longitude)
+    for x in self.daysReviewed:
+      nr = self.negReviewByDay[x]
+      pr = self.posReviewByDay[x]
+      dr = self.reviewCountByDay[x]
+      if nr == 0 and pr == 0:
+        s = 0.5
+      else:
+        s = nr/dr
+      returnString += ", {0}, {1}, {2}".format(x, str(s), str(dr))
+
     return returnString
 
 
@@ -199,19 +209,6 @@ class BusinessSentiment:
 
   def setLongitude(self, lng):
     self.longitude = lng
-
-  def getSentiment(self, day):
-    """
-    Gets sentiment rating for specified day of the week (0-6) and time
-    (0=lunch, 1=dinner) of day.
-    """
-    if(day > 6):
-      return -1
-
-    if self.reviewCountByDay[day] == 0:
-      return 0.5    # no reviews, no sentiment
-    else:
-      return self.negReviewByDay[day] / self.reviewCountByDay[day]
 
   def getBusinessID(self):
     return self.businessID
@@ -229,17 +226,10 @@ class BusinessSentiment:
 
     sentiment = 0
 
-    if len(BusinessSentiment.dinnerDict) == 0:
+    if len(BusinessSentiment.negativeDict) == 0:
       BusinessSentiment.loadDictionaries()
 
     revData = reviewList
-
-    # day of week
-    dateList = revData["date"].split('-')
-    rDt = datetime.datetime(int(dateList[0]), int(dateList[1]), int(dateList[2]))
-    dayOfWeek = rDt.weekday()
-
-    self.reviewCountByDay[dayOfWeek] += 1
 
     # isolate sentences in review text
     revText = revData["text"]
@@ -261,11 +251,20 @@ class BusinessSentiment:
         if element in words:
           sentiment += 1
 
+    # make sure date is in sentiment
+    revDate = revData["date"]
+    if revDate not in self.daysReviewed:
+      self.daysReviewed.append(revDate)
+      self.posReviewByDay[revDate] = 0
+      self.negReviewByDay[revDate] = 0
+      self.reviewCountByDay[revDate] = 0
+
     # set new sentiment for day of week
     if sentiment > 0:
-      self.posReviewByDay[dayOfWeek] += 1
-    else:
-      self.negReviewByDay[dayOfWeek] += 1
+      self.posReviewByDay[revDate] += 1
+    elif sentiment < 0:
+      self.negReviewByDay[revDate] += 1
+    self.reviewCountByDay[revDate] += 1
 
   @staticmethod
   def loadDictionaries():

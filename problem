@@ -1,7 +1,0 @@
-sentimentAnalysis1 fails between reviews 3000-4000 when it gets 2 reviews
-for the same business. When it tries to find the existing sentiment the
-value property fails to resolve. Is the node properly storing the sentiment
-object or is the sentiment array in the YelpDataContainer object storing
-sentiments instead of nodes.
-
-Wtf.

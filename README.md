@@ -18,6 +18,8 @@ _Current_
 * extract JSON objects for reviews by business ID
 * YelpDataContainer class that stores Yelp data and methods to operate on it
 * BusinessSentiment class in YelpDataContainer module to store/adjust sentiment
+* sentiment and business data stored in binary tree (need to change this)
+  - how was python hash slower?
 
 _In Process_
 * YelpDataContainer additional functionality
