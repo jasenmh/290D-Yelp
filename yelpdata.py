@@ -158,6 +158,15 @@ def importJSONreview(dataFile):
 
   return reviewData
 
+def importSTRINGreview(jsonData):
+  try:
+    data = json.loads(jsonData)
+  except ValueError:
+    print "Failed to convert JSON record to dictionary"
+    return -1
+
+  return data
+
 def selectReviewByBusinessIDs(dataFile, busIDs):
 
   try:
