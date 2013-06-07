@@ -1,7 +1,7 @@
 import yelpdata
 from TreeNode import TreeNode
-import datetime
 import json
+import time
 
 """
 This module contains the YelpDataContainer class.
@@ -184,7 +184,7 @@ class BusinessSentiment:
     self.posReviewByDay = {}
     self.negReviewByDay = {}
     self.reviewCountByDay = {}
-    if len(BusinessSentiment.positiveDict):
+    if len(BusinessSentiment.positiveDict) == 0:
       BusinessSentiment.loadDictionaries()
 
   def sentimentToString(self):
@@ -215,7 +215,7 @@ class BusinessSentiment:
   def setBusinessID(self, bID):
     self.businessID = bID
 
-  def analyzeReviewSentiment(self, reviewList):
+  def analyzeReviewSentiment(self, revData):
     """
     This function takes the text of a review and 1) determine the day of the
     week it applies to, 2) determines the meal it applies to (or both as a
@@ -225,12 +225,12 @@ class BusinessSentiment:
 
     sentiment = 0
 
-    if len(BusinessSentiment.negativeDict) == 0:
-      BusinessSentiment.loadDictionaries()
-
-    revData = reviewList
+    #if len(BusinessSentiment.negativeDict) == 0:
+    #  print "Loading dictionaries..."
+    #  BusinessSentiment.loadDictionaries()
 
     # isolate sentences in review text
+    #splitTime = time.time()
     revText = revData["text"]
     revSent2 = revText.split('.') # first split review into sentences by periods
     revSent1 = []
@@ -239,31 +239,45 @@ class BusinessSentiment:
     revSent = []
     for sent in revSent1:
       revSent += sent.split('!') # then bangs, leaving all sentences split?
+    #splitTime = time.time() - splitTime
 
     # evaluate each sentence for sentiment
+    #evalTime = time.time()
     for sentence in revSent:
       words = sentence.split(' ')
-      for element in BusinessSentiment.negativeDict:
-        if element in words:
+      #for element in BusinessSentiment.negativeDict:
+      #  if element in words:
+      #    sentiment -= 1
+      #for element in BusinessSentiment.positiveDict:
+      #  if element in words:
+      #    sentiment += 1
+      for element in words:
+        if element in BusinessSentiment.negativeDict:
           sentiment -= 1
-      for element in BusinessSentiment.positiveDict:
-        if element in words:
+        if element in BusinessSentiment.positiveDict:
           sentiment += 1
+    #evalTime = time.time() - evalTime
 
     # make sure date is in sentiment
+    #initTime = time.time()
     revDate = revData["date"]
     if revDate not in self.daysReviewed:
       self.daysReviewed.append(revDate)
       self.posReviewByDay[revDate] = 0
       self.negReviewByDay[revDate] = 0
       self.reviewCountByDay[revDate] = 0
+    #initTime = time.time() - initTime
 
     # set new sentiment for day of week
+    #storeTime = time.time()
     if sentiment > 0:
       self.posReviewByDay[revDate] += 1
     elif sentiment < 0:
       self.negReviewByDay[revDate] += 1
     self.reviewCountByDay[revDate] += 1
+    #storeTime = time.time() - storeTime
+
+    #print "S: {0} E: {1} I: {2} S: {3}".format(splitTime, evalTime, initTime, storeTime)
 
   @staticmethod
   def loadDictionaries():

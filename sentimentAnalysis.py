@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from YelpDataContainer import YelpDataContainer
+from YelpDataContainer import BusinessSentiment
 import yelpdata
 import time
 import sys
@@ -32,7 +33,7 @@ def main():
   revCount = 0
   outCount = 0
   impTime = 0
-  writetime = 0
+  writeTime = 0
   sentTime = 0
   analyzeTime = 0
 
@@ -48,17 +49,17 @@ def main():
   print "Starting analysis..."
   #for rev in y.review:
   for line in rFile:
-    tImpTime = time.time()
+    #tImpTime = time.time()
     rev = yelpdata.importSTRINGreview(line)
-    impTime += time.time() - tImpTime
+    #impTime += time.time() - tImpTime
     revCount += 1
     if revCount % saveInterval == 0:
-      tWriteTime = time.time()
+      #tWriteTime = time.time()
       writeOutput(y, revCount, quietMode)
-      writetime += time.time() - tWriteTime
-    tSentTime = time.time()
+      #writeTime += time.time() - tWriteTime
+    #tSentTime = time.time()
     s = y.findSentimentByBusinessID(rev["business_id"])
-    sentTime += time.time() - tSentTime
+    #sentTime += time.time() - tSentTime
     if s == 0:  # This shouldn't happen anymore
       print "No sentiment for {0}, skipping it.".format(rev["business_id"])
       continue
@@ -67,19 +68,19 @@ def main():
       s.setLatitude(b["latitude"])
       s.setLongitude(b["longitude"])
 
-    tAnalyzeTime = time.time()
+    #tAnalyzeTime = time.time()
     s.analyzeReviewSentiment(rev)
-    analyzeTime += time.time() - tAnalyzeTime
+    #analyzeTime += time.time() - tAnalyzeTime
 
     if quietMode == 0 and revCount % reportInterval == 0:
       timeNew = time.time()
       print "--Review",revCount," Time",timeNew-timeLast,"/",timeNew-timeStart
-      print "Import: {0} Write: {1} Find Sent: {2} Analyze: {3}".format(impTime, writeTime, sentTime, analyzeTime)
+      #print "Import: {0} Write: {1} Find Sent: {2} Analyze: {3}".format(impTime, writeTime, sentTime, analyzeTime)
       timeLast = timeNew
-      imptime = 0
-      writeTime = 0
-      sentTime = 0
-      analyzeTime = 0
+      #imptime = 0
+      #writeTime = 0
+      #sentTime = 0
+      #analyzeTime = 0
 
   rFile.close()
 
