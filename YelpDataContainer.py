@@ -73,11 +73,9 @@ class YelpDataContainer:
       for i in range(3, len(sentVals)):
         ts.daysReviewed.append(sentVals[i])
         ts.reviewCountByDay[sentVals[i]] = int(sentVals[i+2])
-        if sentVals[i+1] == 0.5:
-          ts.negReviewByDay[sentVals[i]] = 0
-        else:
-          ts.negReviewByDay[sentVals[i]] = int(float(sentVals[i+1]) * int(sentVals[i+2]))
-        i += 2
+        ts.negReviewByDay[sentVals[i]] = int(sentVals[i+3])
+        ts.posReviewByDay[sentVals[i]] = int(sentVals[i+4])
+        i += 4
 
       if self.sentRoot == 0:
         self.sentRoot = ts
@@ -198,8 +196,9 @@ class BusinessSentiment:
       if nr == 0 and pr == 0:
         s = 0.5
       else:
-        s = nr/dr
-      returnString += ", {0}, {1}, {2}".format(x, str(s), str(dr))
+        #s = nr/dr
+        s = pr/(pr+nr)
+      returnString += ", {0}, {1}, {2}, {3}, {4}".format(x, str(s), str(dr), str(nr), str(pr))
 
     return returnString
 
